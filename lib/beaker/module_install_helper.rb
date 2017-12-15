@@ -47,6 +47,32 @@ module Beaker::ModuleInstallHelper
     end
   end
 
+  # This method calls the install_module_fixtures_on method for each
+  # host which is a master, or if no master is present, on all agent nodes.
+  def install_module_fixtures
+    install_module_fixtures_on(hosts_to_install_module_on, deps)
+  end
+
+  # This method will install the module under tests module fixtures on the
+  # specified host(s) from the fixtures file
+  def install_module_fixtures_on(hsts)
+    hsts = [hsts] if hsts.is_a?(Hash)
+    hsts = [hsts] unless hsts.respond_to?(:each)
+    fixtures_path = "#{$module_source_dir}/spec/fixtures/modules/"
+
+    require 'puppetlabs_spec_helper/rake_tasks'
+    require 'puppet/face'
+    include PuppetlabsSpecHelper::RakeTasks
+    Rake::Task['spec_prep'].invoke
+
+    hsts.each do |host|
+      Dir.foreach(fixtures_path) do |fname|
+        next if fname == '.' or fname == '..'
+        copy_module_to(host, :source => "#{fixtures_path}#{fname}", :module_name => fname)
+      end
+    end
+  end
+
   def install_module_from_forge(mod_name, ver_req)
     install_module_from_forge_on(hosts_to_install_module_on, mod_name, ver_req)
   end

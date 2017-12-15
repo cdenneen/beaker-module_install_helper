@@ -10,6 +10,7 @@ group :test do
   gem 'rspec', '~> 3'
   gem 'rubocop', require: false
   gem 'rubocop-rspec', require: false
+  gem 'puppetlabs_spec_helper'
 end
 
 group :development do

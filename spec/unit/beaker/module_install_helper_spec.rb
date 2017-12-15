@@ -255,6 +255,63 @@ describe Beaker::ModuleInstallHelper do
     end
   end
 
+  describe 'install_module_fixtures_on' do
+    context 'with fixtures' do
+      let(:a_host) { { name: 'a_host' } }
+      let(:module_source_dir) { '/a/b/c/d' }
+      let(:input_fixtures) do
+        {
+          'fixtures' => {
+            'forge_modules' => {
+              'stdlib' => {
+                'repo' => 'puppetlabs-stdlib',
+                'ref' => '4.14.0'
+              },
+              'vcsrepo' => {
+                'repo' => 'puppetlabs-vcsrepo'
+              }
+            },
+            'repositories' => {
+              'ntp' => {
+                'repo' => 'https://github.com/puppetlabs/puppetlabs-ntp.git',
+                'ref' => '7.0.0'
+              },
+              'concat' => {
+                'repo' => 'https://github.com/puppetlabs/puppetlabs-concat.git'
+              }
+            },
+            'symlinks' => {
+              'self' => '#{source_dir}'
+            }
+          }
+        }
+      end
+      it 'installs the modules' do
+        expect_any_instance_of(Beaker::DSL::InstallUtils::ModuleUtils)
+          .to receive(:copy_module_to)
+          .with(a_host, source: module_source_dir, module_name: 'stdlib')
+          .and_return(true)
+
+        expect_any_instance_of(Beaker::DSL::InstallUtils::ModuleUtils)
+          .to receive(:copy_module_to)
+          .with(a_host, source: module_source_dir, module_name: 'vcsrepo')
+          .and_return(true)
+
+        expect_any_instance_of(Beaker::DSL::InstallUtils::ModuleUtils)
+          .to receive(:copy_module_to)
+          .with(a_host, source: module_source_dir, module_name: 'ntp')
+          .and_return(true)
+
+        expect_any_instance_of(Beaker::DSL::InstallUtils::ModuleUtils)
+          .to receive(:copy_module_to)
+          .with(a_host, source: module_source_dir, module_name: 'concat')
+          .and_return(true)
+
+        install_module_fixtures_on(a_host)
+      end
+    end
+  end
+
   describe 'install_module_dependencies_on' do
     before do
       allow_any_instance_of(described_class)
